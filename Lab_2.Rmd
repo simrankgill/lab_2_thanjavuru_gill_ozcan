@@ -30,18 +30,25 @@ theme_set(theme_bw())
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-FFMC - The fine fuel moisture code, represents fuel moisture of forest litter fuels under the shade of a forest canopy. 
-DMC - measures the average moisture content of loosely compacted organic layers in the forest floor.
-DC - Drought Code, is a unitless numeric rating in the Candian Forest Fire Weather Index (FWI) system that measures the average moisture content of deep, compact organic layers in soil and litter. 
-ISI - a numeric rating in the Fire Weather Index (FWI) system that estimates how quickly a wildland fire will spread after it starts
-temp - in celsius degrees
-RH - relative humidity in percentage
-wind - wind speed in km/h
-rain - outside rain mm/m2
-area - the burned area of the forest: 0.00 to 1090.84 (this output variable is very skewed towards 0.0, thus it may make sense to model with the logarithm transform). [ha - Hectare (symbol ha) is the metric unit of area that equals a square with 100 m side (1 hm2) or 10,000 square meters]
 
 
-Research question: "What is the relationship between Fine Fuel Moisture Code (FFMC) and Initial Spread Index (ISI) in understanding wildfire spread dynamics in the northeast region of Portugal" Can provide insight into fire behavior in terms of spread-ability to put in place appropriate public safety measures. 
+# Introduction
+Forest fires not only represent a significant threat towards human life and property, but also affect the ecosystem. The northeast region of Portugal in particular has a history of wildfires because more than a third is covered by forests. Adding in the factor of hot and dry summers can potentially increase the risk of wildfires\footnote{The Subday Times. "Portugal wildfires: what to expect if you’re travelling in summer 2024" (2024).}. Even though wildfires are a normal part of the renewal process of forests, the forests are getting drier and people are living closer to them which causes an increase in safety issues\footnote{National Geographic. "How to live with mega-fires? Portugal’s feral forests may hold the secret" (2019).}. This is why it is important for us to understand the behavior of wildfires, in particular the speed in which fire spreads. 
+
+With this investigation, we can continue to discuss how wildfires affect the environment along with social-economics and explore opportunities to do our part to put in place appropriate measures of safety. Along with produce strategies to minimize the risk of wildfires. This research will interest be in the interest of Environmental Scientists and Ecologists along with Fire Management Agencies who goal of protecting an decreases any through towards human life along with the ecosystem. To create a starting point for this discussion, this research will investigate the following research question:
+
+\begin{quote}
+  \textit{What is the relationship between Fine Fuel Moisture Code (FFMC) and Initial Spread Index (ISI) in understanding wildfire spread dynamics in the northeast region of Portugal?}
+\end{quote}
+
+FFMC and ISI are key components of the Canadian Forest Fire Weather Index system which are used to assess fire behavior. To provide context, FFMC represents fuel moisture of forest litter fuel under the shade of a forest canopy and ISI is a numeric rating that estimates how quickly a fire will spread after it starts. Exploring the relationship between these two variables can provide valuable insights in what conditions cause rapid wildfire spread. To answer this research question we will perform a bivariate analysis be developing a regression models by iteratively applying variable transformation. Then evaluating both the statistical and practical significance of results.
+
+# Description of the Data Source
+
+# Data Wrangling 
+
+# Operationalization
+
 ```{r }
 
 data <- read.csv("forestfires.csv")
@@ -105,4 +112,8 @@ ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
   theme_minimal() 
 ```
 
+# Model Specification
 
+# Model Assuptions
+
+# Model Results and Interpretation 
