@@ -1,5 +1,5 @@
 ---
-title: "LAB 1 - Assessing Voting Challenges"
+title: "LAB 2 - Wildfire Spread Dynamics"
 author: "Tanav Thanjavuru, Simran Gill, Ozkan Meric Ozcan"
 date: "2024-07-02"
 output:
@@ -44,13 +44,13 @@ With this investigation, we can continue to discuss how wildfires affect the env
 FFMC and ISI are key components of the Canadian Forest Fire Weather Index system which are used to assess fire behavior. To provide context, FFMC represents fuel moisture of forest litter fuel under the shade of a forest canopy and ISI is a numeric rating that estimates how quickly a fire will spread after it starts. Exploring the relationship between these two variables can provide valuable insights in what conditions cause rapid wildfire spread. To answer this research question we will perform a bivariate analysis be developing a regression models by iteratively applying variable transformation. Then evaluating both the statistical and practical significance of results.
 
 # Description of the Data Source
+The dataset we will be using for this research is from the UCI Machine Learning Repository which is called "Forest Fires" and can be found here: https://archive.ics.uci.edu/dataset/162/forest+fires. This data set has 517 instances with 13 feature that consists of climate and physical factors of the Montesinho natural park. The data was collected between January 2000 and December 2003. This can be used to understand forest fire behavior in northeast region of Portugal. 
 
 # Data Wrangling 
 
 # Operationalization
 
 ```{r }
-
 data <- read.csv("forestfires.csv")
 
 # shape of the data 
@@ -65,21 +65,17 @@ print(colSums(is.na(data)))
 vars <- c("FFMC", "DMC", "DC", "ISI", "temp", "RH", "wind", "rain", "area")
 cor_matrix <- cor(data[vars], use = "complete.obs")
 
+
 corrplot(cor_matrix, type = "upper", order = "hclust",
-         tl.col = "black", tl.srt = 45)
+         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0), title = "Correlation Matrix of Forest Fire Variables")
 
 ```
 ```{r }
 ggplot(data, aes(x = FFMC, y = ISI)) +
-  geom_point(alpha = 0.5) +  # scatter plot points with transparency
-  geom_density_2d() +        # add 2D density contours
-  theme_minimal()  
-```
-```{r }
-ggplot(data, aes(x = FFMC, y = ISI)) +
   geom_hex() +               
-  scale_fill_viridis_c() +   
-  theme_minimal()     
+  scale_fill_viridis_c() + 
+  theme_minimal() +
+  ggtitle("Relationship between FFMC and ISI")
 ```
 ```{r }
 # Detect Outlier in Column 
@@ -109,7 +105,8 @@ dim(cleaned_data)
 ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
   geom_hex() +               
   scale_fill_viridis_c() +   
-  theme_minimal() 
+  theme_minimal() + 
+  ggtitle("Title: Relationship between FFMC and ISI after Removing Outliers")
 ```
 
 # Model Specification
