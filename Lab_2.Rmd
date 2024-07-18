@@ -111,6 +111,47 @@ ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
 
 # Model Specification
 
+
+model1 <- lm(ISI ~ FFMC, data = cleaned_data)
+summary(model1)
+regression_plot <- ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
+  geom_point() +  # Scatter plot of the data points
+  geom_smooth(method = "lm", col = "blue") +
+  labs(title = "Regression of ISI on FFMC", x = "FFMC", y = "ISI") +
+  theme_minimal()
+print(regression_plot)
+cleaned_data <- cleaned_data %>%
+  mutate(fitted_values = fitted(model),
+         residuals = resid(model))
+residuals_plot <- ggplot(cleaned_data, aes(x = fitted_values, y = residuals)) +
+  geom_point() +  # Scatter plot of residuals
+  geom_hline(yintercept = 0, col = "red", linetype = "dashed") +  # Horizontal line at y=0
+  labs(title = "Residuals vs Fitted Values", x = "Fitted Values", y = "Residuals") +
+  theme_minimal()
+print(residuals_plot)
+
+
+log_regression_plot <- ggplot(cleaned_data, aes(x = FFMC, y = log(ISI))) +
+  geom_point() + 
+  geom_smooth(method = "lm", col = "blue") +  # Regression line
+  labs(title = "Log-Linear Regression of log(ISI) on FFMC", x = "FFMC", y = "log(ISI)") +
+  theme_minimal()
+print(log_regression_plot)
+cleaned_data <- cleaned_data %>%
+  mutate(log_fitted_values = fitted(log_model),
+         log_residuals = resid(log_model))
+log_residuals_plot <- ggplot(cleaned_data, aes(x = log_fitted_values, y = log_residuals)) +
+  geom_point() +  # Scatter plot of residuals
+  geom_hline(yintercept = 0, col = "red", linetype = "dashed") +  # Horizontal line at y=0
+  labs(title = "Residuals vs Fitted Values for Log-Linear Model", x = "Fitted Values", y = "Residuals") +
+  theme_minimal()
+print(log_residuals_plot)
+
+grid.arrange(log_regression_plot, log_residuals_plot, ncol = 2)
+stargazer(log_model, type = "text", title = "Log-Linear Regression Model Results", digits = 2, single.row = TRUE)
+
+#We started with a simple linear regression model to establish a baseline relationship between FFMC and ISI. After plotting the model, we saw a strong linear relationship between the variables. After this we applied log transformation to address skewness and improve model fit, and again saw a good line of best fit. The log transformation helped in normalizing the distribution of the dependent variable, which can lead to a better fit and more reliable statistical inference. We used log-transform for the ISI variable was based on an initial observation of skewness in the data.
+
 # Model Assuptions
 
 # Model Results and Interpretation 
