@@ -38,46 +38,43 @@ Forest fires not only represent a significant threat towards human life and prop
 With this investigation, we can continue to discuss how wildfires affect the environment along with social-economics and explore opportunities to do our part to put in place appropriate measures of safety. Along with produce strategies to minimize the risk of wildfires. This research will interest be in the interest of Environmental Scientists and Ecologists along with Fire Management Agencies who goal of protecting an decreases any through towards human life along with the ecosystem. To create a starting point for this discussion, this research will investigate the following research question:
 
 \begin{quote}
-  \textit{What is the relationship between Fine Fuel Moisture Code (FFMC) and Initial Spread Index (ISI) in understanding wildfire spread dynamics in the northeast region of Portugal?}
+  \textit{How does Fine Fuel Moisture Code (FFMC) help us understand how quick a fire spreads in the northeast region of Portugal?}
 \end{quote}
 
-FFMC and ISI are key components of the Canadian Forest Fire Weather Index system which are used to assess fire behavior. To provide context, FFMC represents fuel moisture of forest litter fuel under the shade of a forest canopy and ISI is a numeric rating that estimates how quickly a fire will spread after it starts. Exploring the relationship between these two variables can provide valuable insights in what conditions cause rapid wildfire spread. To answer this research question we will perform a bivariate analysis be developing a regression models by iteratively applying variable transformation. Then evaluating both the statistical and practical significance of results.
+To measure fire spread, we will use Initial Spread Index (ISI). Both FFMC and ISI are key components of the Canadian Forest Fire Weather Index system which are used to assess fire behavior. To provide context, FFMC represents fuel moisture of forest litter fuel under the shade of a forest canopy and ISI is a numeric rating that estimates how quickly a fire will spread after it starts. Exploring the relationship between these two variables can provide valuable insights in what conditions cause rapid wildfire spread. To answer this research question we will perform a bivariate analysis be developing a regression models by iteratively applying variable transformation. Then evaluating both the statistical and practical significance of results.
 
 # Description of the Data Source
 The dataset we will be using for this research is from the UCI Machine Learning Repository which is called "Forest Fires" and can be found here: https://archive.ics.uci.edu/dataset/162/forest+fires. This data set has 517 instances with 13 feature that consists of climate and physical factors of the Montesinho natural park. The data was collected between January 2000 and December 2003. This can be used to understand forest fire behavior in northeast region of Portugal. 
 
-# Data Wrangling 
+# Data Wrangling & Operationalization
 
-# Operationalization
 
-```{r }
+```{r, echo=FALSE , results='hide' }
 data <- read.csv("forestfires.csv")
 
 # shape of the data 
 head(data)
 ```
 
-```{r }
+```{r, echo=FALSE, , results='hide' }
 # do any columns have null values 
 print(colSums(is.na(data)))
 ```
-```{r }
+```{r, echo=FALSE  }
 vars <- c("FFMC", "DMC", "DC", "ISI", "temp", "RH", "wind", "rain", "area")
 cor_matrix <- cor(data[vars], use = "complete.obs")
 
-
 corrplot(cor_matrix, type = "upper", order = "hclust",
          tl.col = "black", tl.srt = 45, mar=c(0,0,1,0), title = "Correlation Matrix of Forest Fire Variables")
-
 ```
-```{r }
+```{r, echo=FALSE }
 ggplot(data, aes(x = FFMC, y = ISI)) +
   geom_hex() +               
   scale_fill_viridis_c() + 
   theme_minimal() +
   ggtitle("Relationship between FFMC and ISI")
 ```
-```{r }
+```{r, echo=FALSE, results='hide' }
 # Detect Outlier in Column 
 detect_outlier <- function(x, threshold_multiplier = 4) {
   Q1 <- quantile(x, probs = 0.25)
@@ -101,42 +98,74 @@ cleaned_data <- remove_outlier(data, c('FFMC', 'ISI'))
 
 dim(cleaned_data)
 ```
-```{r }
+```{r, echo=FALSE }
 ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
   geom_hex() +               
   scale_fill_viridis_c() +   
   theme_minimal() + 
-  ggtitle("Title: Relationship between FFMC and ISI after Removing Outliers")
+  ggtitle("Relationship between FFMC and ISI after Removing Outliers")
 ```
 
 # Model Specification
 
+```{r, echo=FALSE, results='hide'}
 
+# First model
 model1 <- lm(ISI ~ FFMC, data = cleaned_data)
 summary(model1)
+
+```
+
+```{r, echo=FALSE,message=FALSE , results='hide', include=FALSE}
+# model 1 regression and residual plots
+
 regression_plot <- ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
   geom_point() +  # Scatter plot of the data points
   geom_smooth(method = "lm", col = "blue") +
   labs(title = "Regression of ISI on FFMC", x = "FFMC", y = "ISI") +
-  theme_minimal()
-print(regression_plot)
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(size = 9),
+        axis.title = element_text(size = 7))
+#print(regression_plot)
+
 cleaned_data <- cleaned_data %>%
-  mutate(fitted_values = fitted(model),
-         residuals = resid(model))
+  mutate(fitted_values = fitted(model1),
+         residuals = resid(model1))
+
 residuals_plot <- ggplot(cleaned_data, aes(x = fitted_values, y = residuals)) +
   geom_point() +  # Scatter plot of residuals
   geom_hline(yintercept = 0, col = "red", linetype = "dashed") +  # Horizontal line at y=0
   labs(title = "Residuals vs Fitted Values", x = "Fitted Values", y = "Residuals") +
-  theme_minimal()
-print(residuals_plot)
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(size = 9),
+        axis.title = element_text(size = 7))
+#print(residuals_plot)
 
+#grid.arrange(regression_plot, residuals_plot, ncol = 2)
+```
+
+```{r, echo=FALSE, results='hide' }
+# Second Model with Log Transformation
+log_model <- lm(log(ISI) ~ FFMC, data = cleaned_data)
+summary(log_model)
+
+```
+
+```{r , echo=FALSE,message=FALSE , results='hide', include=FALSE}
+# log model regression and residual plots
 
 log_regression_plot <- ggplot(cleaned_data, aes(x = FFMC, y = log(ISI))) +
   geom_point() + 
   geom_smooth(method = "lm", col = "blue") +  # Regression line
   labs(title = "Log-Linear Regression of log(ISI) on FFMC", x = "FFMC", y = "log(ISI)") +
-  theme_minimal()
-print(log_regression_plot)
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(size = 9),
+        axis.title = element_text(size = 7))
+#print(log_regression_plot)
+
 cleaned_data <- cleaned_data %>%
   mutate(log_fitted_values = fitted(log_model),
          log_residuals = resid(log_model))
@@ -144,14 +173,56 @@ log_residuals_plot <- ggplot(cleaned_data, aes(x = log_fitted_values, y = log_re
   geom_point() +  # Scatter plot of residuals
   geom_hline(yintercept = 0, col = "red", linetype = "dashed") +  # Horizontal line at y=0
   labs(title = "Residuals vs Fitted Values for Log-Linear Model", x = "Fitted Values", y = "Residuals") +
-  theme_minimal()
-print(log_residuals_plot)
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(size = 9),
+        axis.title = element_text(size = 7))
+#print(log_residuals_plot)
 
-grid.arrange(log_regression_plot, log_residuals_plot, ncol = 2)
-stargazer(log_model, type = "text", title = "Log-Linear Regression Model Results", digits = 2, single.row = TRUE)
+#grid.arrange(log_regression_plot, log_residuals_plot, ncol = 2)
+```
 
-#We started with a simple linear regression model to establish a baseline relationship between FFMC and ISI. After plotting the model, we saw a strong linear relationship between the variables. After this we applied log transformation to address skewness and improve model fit, and again saw a good line of best fit. The log transformation helped in normalizing the distribution of the dependent variable, which can lead to a better fit and more reliable statistical inference. We used log-transform for the ISI variable was based on an initial observation of skewness in the data.
+We started with a simple linear regression model to establish a baseline relationship between FFMC and ISI. After plotting the model, we saw a strong linear relationship between the variables. After this we applied log transformation to address skewness and improve model fit, and again saw a good line of best fit. The log transformation helped in normalizing the distribution of the dependent variable, which can lead to a better fit and more reliable statistical inference. We used log-transform for the ISI variable was based on an initial observation of skewness in the data.
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6 }
+grid.arrange( regression_plot, log_regression_plot, ncol = 2, nrow = 1)
+```
 
 # Model Assuptions
 
 # Model Results and Interpretation 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6 }
+grid.arrange( residuals_plot, log_residuals_plot, ncol = 2, nrow = 1)
+```
+
+```{r, echo=FALSE, results='hide' }
+stargazer(log_model, type = "latex", title = "Log-Linear Regression Model Results", digits = 2, single.row = TRUE)
+```
+\begin{table}[!htbp] \centering 
+  \caption{Log-Linear Regression Model Results} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & log(ISI) \\ 
+\hline \\[-1.8ex] 
+ FFMC & 0.14$^{***}$ (0.004) \\ 
+  Constant & $-$10.61$^{***}$ (0.35) \\ 
+ \hline \\[-1.8ex] 
+Observations & 507 \\ 
+R$^{2}$ & 0.73 \\ 
+Adjusted R$^{2}$ & 0.73 \\ 
+Residual Std. Error & 0.25 (df = 505) \\ 
+F Statistic & 1,357.13$^{***}$ (df = 1; 505) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table} 
+
+
