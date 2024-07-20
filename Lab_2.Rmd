@@ -51,31 +51,39 @@ The dataset we will be using for this research is from the UCI Machine Learning 
 
 ```{r, echo=FALSE , results='hide' }
 data <- read.csv("forestfires.csv")
-
 # shape of the data 
 head(data)
 ```
 
 ```{r, echo=FALSE, , results='hide' }
-# do any columns have null values 
-print(colSums(is.na(data)))
+## Splitting data to exploration set and confirmation set 
+set.seed(123) # for reproducibility
+
+sample_index <- sample(seq_len(nrow(data)), size = 0.3 * nrow(data))
+
+exploration_set <- data[sample_index, ]
+confirmation_set <- data[-sample_index, ]
+
+(dim(exploration_set))
+(dim(confirmation_set))
 ```
+
 ```{r, echo=FALSE  }
 vars <- c("FFMC", "DMC", "DC", "ISI", "temp", "RH", "wind", "rain", "area")
-cor_matrix <- cor(data[vars], use = "complete.obs")
 
+cor_matrix <- cor(exploration_set[vars], use = "complete.obs")
 corrplot(cor_matrix, type = "upper", order = "hclust",
          tl.col = "black", tl.srt = 45, mar=c(0,0,1,0), title = "Correlation Matrix of Forest Fire Variables")
 ```
 ```{r, echo=FALSE }
-ggplot(data, aes(x = FFMC, y = ISI)) +
-  geom_hex() +               
-  scale_fill_viridis_c() + 
+ggplot(exploration_set, aes(x = FFMC, y = ISI)) +
+  geom_hex() +
+  scale_fill_viridis_c() +
   theme_minimal() +
   ggtitle("Relationship between FFMC and ISI")
 ```
 ```{r, echo=FALSE, results='hide' }
-# Detect Outlier in Column 
+# Detect Outlier in Column
 detect_outlier <- function(x, threshold_multiplier = 4) {
   Q1 <- quantile(x, probs = 0.25)
   Q3 <- quantile(x, probs = 0.75)
@@ -83,8 +91,7 @@ detect_outlier <- function(x, threshold_multiplier = 4) {
   outliers <- x > (Q3 + threshold_multiplier * IQR) | x < (Q1 - threshold_multiplier * IQR)
   outliers
 }
-
-# Remove Outlier Function 
+# Remove Outlier Function
 remove_outlier <- function(dataframe, columns = names(dataframe)) {
   for (col in columns) {
     outliers <- detect_outlier(dataframe[[col]])
@@ -92,14 +99,15 @@ remove_outlier <- function(dataframe, columns = names(dataframe)) {
   }
   dataframe
 }
+cleaned_exploration_set <- remove_outlier(exploration_set, c('FFMC', 'ISI'))
+(dim(cleaned_exploration_set))
 
+cleaned_confirmation_set <- remove_outlier(confirmation_set, c('FFMC', 'ISI'))
+(dim(confirmation_set))
 
-cleaned_data <- remove_outlier(data, c('FFMC', 'ISI')) 
-
-dim(cleaned_data)
 ```
 ```{r, echo=FALSE }
-ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
+ggplot(cleaned_exploration_set, aes(x = FFMC, y = ISI)) +
   geom_hex() +               
   scale_fill_viridis_c() +   
   theme_minimal() + 
@@ -111,7 +119,7 @@ ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
 ```{r, echo=FALSE, results='hide'}
 
 # First model
-model1 <- lm(ISI ~ FFMC, data = cleaned_data)
+model1 <- lm(ISI ~ FFMC, data = cleaned_confirmation_set)
 summary(model1)
 
 ```
@@ -119,7 +127,7 @@ summary(model1)
 ```{r, echo=FALSE,message=FALSE , results='hide', include=FALSE}
 # model 1 regression and residual plots
 
-regression_plot <- ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
+regression_plot <- ggplot(cleaned_confirmation_set, aes(x = FFMC, y = ISI)) +
   geom_point() +  # Scatter plot of the data points
   geom_smooth(method = "lm", col = "blue") +
   labs(title = "Regression of ISI on FFMC", x = "FFMC", y = "ISI") +
@@ -129,11 +137,11 @@ regression_plot <- ggplot(cleaned_data, aes(x = FFMC, y = ISI)) +
         axis.title = element_text(size = 7))
 #print(regression_plot)
 
-cleaned_data <- cleaned_data %>%
+cleaned_confirmation_set <- cleaned_confirmation_set %>%
   mutate(fitted_values = fitted(model1),
          residuals = resid(model1))
 
-residuals_plot <- ggplot(cleaned_data, aes(x = fitted_values, y = residuals)) +
+residuals_plot <- ggplot(cleaned_confirmation_set, aes(x = fitted_values, y = residuals)) +
   geom_point() +  # Scatter plot of residuals
   geom_hline(yintercept = 0, col = "red", linetype = "dashed") +  # Horizontal line at y=0
   labs(title = "Residuals vs Fitted Values", x = "Fitted Values", y = "Residuals") +
@@ -148,7 +156,7 @@ residuals_plot <- ggplot(cleaned_data, aes(x = fitted_values, y = residuals)) +
 
 ```{r, echo=FALSE, results='hide' }
 # Second Model with Log Transformation
-log_model <- lm(log(ISI) ~ FFMC, data = cleaned_data)
+log_model <- lm(log(ISI) ~ FFMC, data = cleaned_confirmation_set)
 summary(log_model)
 
 ```
@@ -156,7 +164,7 @@ summary(log_model)
 ```{r , echo=FALSE,message=FALSE , results='hide', include=FALSE}
 # log model regression and residual plots
 
-log_regression_plot <- ggplot(cleaned_data, aes(x = FFMC, y = log(ISI))) +
+log_regression_plot <- ggplot(cleaned_confirmation_set, aes(x = FFMC, y = log(ISI))) +
   geom_point() + 
   geom_smooth(method = "lm", col = "blue") +  # Regression line
   labs(title = "Log-Linear Regression of log(ISI) on FFMC", x = "FFMC", y = "log(ISI)") +
@@ -166,10 +174,10 @@ log_regression_plot <- ggplot(cleaned_data, aes(x = FFMC, y = log(ISI))) +
         axis.title = element_text(size = 7))
 #print(log_regression_plot)
 
-cleaned_data <- cleaned_data %>%
+cleaned_confirmation_set <- cleaned_confirmation_set %>%
   mutate(log_fitted_values = fitted(log_model),
          log_residuals = resid(log_model))
-log_residuals_plot <- ggplot(cleaned_data, aes(x = log_fitted_values, y = log_residuals)) +
+log_residuals_plot <- ggplot(cleaned_confirmation_set, aes(x = log_fitted_values, y = log_residuals)) +
   geom_point() +  # Scatter plot of residuals
   geom_hline(yintercept = 0, col = "red", linetype = "dashed") +  # Horizontal line at y=0
   labs(title = "Residuals vs Fitted Values for Log-Linear Model", x = "Fitted Values", y = "Residuals") +
@@ -212,17 +220,15 @@ stargazer(log_model, type = "latex", title = "Log-Linear Regression Model Result
 \\[-1.8ex] & log(ISI) \\ 
 \hline \\[-1.8ex] 
  FFMC & 0.14$^{***}$ (0.004) \\ 
-  Constant & $-$10.61$^{***}$ (0.35) \\ 
+  Constant & $-$10.71$^{***}$ (0.40) \\ 
  \hline \\[-1.8ex] 
-Observations & 507 \\ 
-R$^{2}$ & 0.73 \\ 
-Adjusted R$^{2}$ & 0.73 \\ 
-Residual Std. Error & 0.25 (df = 505) \\ 
-F Statistic & 1,357.13$^{***}$ (df = 1; 505) \\ 
+Observations & 355 \\ 
+R$^{2}$ & 0.74 \\ 
+Adjusted R$^{2}$ & 0.74 \\ 
+Residual Std. Error & 0.25 (df = 353) \\ 
+F Statistic & 1,022.88$^{***}$ (df = 1; 353) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
 \end{table} 
-
-
