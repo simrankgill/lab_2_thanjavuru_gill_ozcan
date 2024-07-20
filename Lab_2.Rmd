@@ -41,13 +41,17 @@ With this investigation, we can continue to discuss how wildfires affect the env
   \textit{How does Fine Fuel Moisture Code (FFMC) help us understand how quick a fire spreads in the northeast region of Portugal?}
 \end{quote}
 
-To measure fire spread, we will use Initial Spread Index (ISI). Both FFMC and ISI are key components of the Canadian Forest Fire Weather Index system which are used to assess fire behavior. To provide context, FFMC represents fuel moisture of forest litter fuel under the shade of a forest canopy and ISI is a numeric rating that estimates how quickly a fire will spread after it starts. Exploring the relationship between these two variables can provide valuable insights in what conditions cause rapid wildfire spread. To answer this research question we will perform a bivariate analysis be developing a regression models by iteratively applying variable transformation. Then evaluating both the statistical and practical significance of results.
+To measure fire spread, we will use Initial Spread Index (ISI). Both FFMC and ISI are key components of the Canadian Forest Fire Weather Index system which are used to assess fire behavior. To provide context, FFMC represents fuel is a numeric rating which measures the moisture content of forest litter such as mosses and twigs. ISI is a numeric rating that estimates how quickly a fire will spread after it starts. Exploring the relationship between these two variables can provide valuable insights in what conditions cause rapid wildfire spread. To answer this research question we will perform a bivariate analysis be developing a regression models by iteratively applying variable transformation. Then evaluating both the statistical and practical significance of results.
 
 # Description of the Data Source
 The dataset we will be using for this research is from the UCI Machine Learning Repository which is called "Forest Fires" and can be found here: https://archive.ics.uci.edu/dataset/162/forest+fires. This data set has 517 instances with 13 feature that consists of climate and physical factors of the Montesinho natural park. The data was collected between January 2000 and December 2003. This can be used to understand forest fire behavior in northeast region of Portugal. 
 
 # Data Wrangling & Operationalization
+Since the data set we are working with has 517 rows, we will split the data into an exploration and confirmation set. 30% of the Forest Fire data set will be the exploration set which is being used to explore the data and the confirmation set will be used for the final model to interpret the results. After splitting the dataset, the exploration set has 155 rows and the confirmation set as 362 rows. 
 
+Our research question has two parts, the Fine Fuel Moisture Code (FFMC) and how quick a fire spreads. To start exploring the data set, we created a correlation heat map to see if FFMC has any correlation with other variables, even though correlation does not mean causation. From the plot, we saw there are 4 variables that have correlation, which are Initial Spread Index (ISI), Temperature, DUff Moisture Code (DMC), and the Drought Code (DC). Because we are interested in the speed of a fire spreading, we created a scatter plot for FFMC and ISI to see if there is a linear relationship. From the scatter plot called "FFMC & ISI Relationship", we found that as FFMC increases, so does ISI. Since there is a relationship here, and our research question involves fire spreadability, we decided to select ISI as our dependent variable and FFMC as out independent variable. 
+
+From the scatter plot, we noticed there are some outliers, and decided it would be a good idea to remove those using an interquartile range. After removing the outliers the exploration set has 151 rows and the confirmation set still has 362 rows.
 
 ```{r, echo=FALSE , results='hide' }
 data <- read.csv("forestfires.csv")
@@ -55,7 +59,7 @@ data <- read.csv("forestfires.csv")
 head(data)
 ```
 
-```{r, echo=FALSE, , results='hide' }
+```{r, echo=FALSE, results='hide' }
 ## Splitting data to exploration set and confirmation set 
 set.seed(123) # for reproducibility
 
@@ -67,21 +71,26 @@ confirmation_set <- data[-sample_index, ]
 (dim(exploration_set))
 (dim(confirmation_set))
 ```
-
-```{r, echo=FALSE  }
+```{r, echo=FALSE, results='hide', include=FALSE}
 vars <- c("FFMC", "DMC", "DC", "ISI", "temp", "RH", "wind", "rain", "area")
 
 cor_matrix <- cor(exploration_set[vars], use = "complete.obs")
 corrplot(cor_matrix, type = "upper", order = "hclust",
          tl.col = "black", tl.srt = 45, mar=c(0,0,1,0), title = "Correlation Matrix of Forest Fire Variables")
 ```
+
 ```{r, echo=FALSE }
-ggplot(exploration_set, aes(x = FFMC, y = ISI)) +
+p1 <- ggplot(exploration_set, aes(x = FFMC, y = ISI)) +
   geom_hex() +
   scale_fill_viridis_c() +
+  ggtitle("FFMC & ISI Relationship") +
   theme_minimal() +
-  ggtitle("Relationship between FFMC and ISI")
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(size = 9),
+        axis.title = element_text(size = 7))
 ```
+
+
 ```{r, echo=FALSE, results='hide' }
 # Detect Outlier in Column
 detect_outlier <- function(x, threshold_multiplier = 4) {
@@ -107,11 +116,18 @@ cleaned_confirmation_set <- remove_outlier(confirmation_set, c('FFMC', 'ISI'))
 
 ```
 ```{r, echo=FALSE }
-ggplot(cleaned_exploration_set, aes(x = FFMC, y = ISI)) +
+p2 <- ggplot(cleaned_exploration_set, aes(x = FFMC, y = ISI)) +
   geom_hex() +               
-  scale_fill_viridis_c() +   
+  scale_fill_viridis_c() + 
+  ggtitle("Outlier Removal:FFMC & ISI Relationship") +
   theme_minimal() + 
-  ggtitle("Relationship between FFMC and ISI after Removing Outliers")
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(size = 9),
+        axis.title = element_text(size = 7))
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6 }
+grid.arrange( p1, p2, ncol = 2, nrow = 1)
 ```
 
 # Model Specification
