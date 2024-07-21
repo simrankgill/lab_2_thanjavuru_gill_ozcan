@@ -2,6 +2,7 @@
 title: "LAB 2 - Wildfire Spread Dynamics"
 author: "Tanav Thanjavuru, Simran Gill, Ozkan Meric Ozcan"
 date: "2024-07-23"
+geometry: margin=1.5cm
 output:
   bookdown::pdf_document2:
     toc: true
@@ -77,9 +78,8 @@ vars <- c("FFMC", "DMC", "DC", "ISI", "temp", "RH", "wind", "rain", "area")
 cor_matrix <- cor(exploration_set[vars], use = "complete.obs")
 ```
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 4, fig.width= 4 }
-c <- corrplot(cor_matrix, type = "upper", order = "hclust",
-         tl.col = "black", tl.srt = 45, mar=c(0,0,1,0), title = "Correlation Matrix of Forest Fire Variables")
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 3, fig.width= 3, fig.align='center' }
+c <- corrplot(cor_matrix, type = "upper", order = "hclust", tl.col = "black", tl.srt = 45, mar=c(0,0,1,0), title = "Forest Fire Variables")
 ```
 
 ```{r, echo=FALSE }
@@ -129,7 +129,7 @@ p2 <- ggplot(cleaned_exploration_set, aes(x = FFMC, y = ISI)) +
         axis.title = element_text(size = 7))
 ```
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6 }
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6,fig.align='center' }
 grid.arrange( p1, p2, ncol = 2, nrow = 1)
 ```
 
@@ -213,7 +213,7 @@ We started with a simple linear regression model to establish a baseline relatio
 
 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6 }
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6,fig.align='center' }
 grid.arrange( regression_plot, log_regression_plot, ncol = 2, nrow = 1)
 ```
 
@@ -226,7 +226,7 @@ The first assumption (IID) states that the data points are independent of each o
 The residuals vs fitted plot will help us judge two key model assumptions, homoscedasticity and non-linearity. We can see in the resdials plot for the simple linear model that the residuals increase with the fitted values, indicating heteroscedasticity and non-linearity. In contrast, the log-linear model's residuals appear more randomly distributed. The absence of a clear pattern suggests that the log transformation has improved the model fit by stabilizing the variance and improving the linearity.    
 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6 }
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6,fig.align='center' }
 grid.arrange( residuals_plot, log_residuals_plot, ncol = 2, nrow = 1)
 ```
 
