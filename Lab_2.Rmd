@@ -230,7 +230,7 @@ The residuals vs fitted plot will help us judge two key model assumptions, homos
 grid.arrange( residuals_plot, log_residuals_plot, ncol = 2, nrow = 1)
 ```
 
-Our chart below shows that for our log-linear regression our coeffienct for FFMC is statistically significiant. Overall our model has an adjusted R^2 of 0.74. This high adjusted R^2 value shows that FFMC has strong explanatory power in our model and is a good predictor of ISI. 
+Our chart below shows that for our log-linear regression our coefficient for FFMC is statistically significant. Overall our model has an adjusted R$^{2}$ of 0.74. This high adjusted R$^{2}$ value shows that FFMC has strong explanatory power in our model and is a good predictor of ISI. 
 
 
 ```{r, echo=FALSE, results='hide' }
