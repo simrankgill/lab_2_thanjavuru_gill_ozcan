@@ -254,3 +254,12 @@ F Statistic & 1,022.88$^{***}$ (df = 1; 353) \\
 \textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
 \end{table} 
+
+
+\newpage 
+# References
+
+Howard, B. C. (2023, October 4). How to live with mega-fires: Portugal’s forests may hold the secret. National Geographic. https://www.nationalgeographic.com/science/article/how-to-live-with-mega-fires-portugal-forests-may-hold-secret
+
+
+Sampson, L. (2024, July 18). Where are the Portugal wildfires and is it safe to travel? The Times. https://www.thetimes.com/travel/advice/where-are-the-portugal-wildfires-is-it-safe-to-travel-ttflwnmnr
