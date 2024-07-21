@@ -71,11 +71,14 @@ confirmation_set <- data[-sample_index, ]
 (dim(exploration_set))
 (dim(confirmation_set))
 ```
-```{r, echo=FALSE, results='hide', include=FALSE}
+```{r, echo=FALSE, results='hide'}
 vars <- c("FFMC", "DMC", "DC", "ISI", "temp", "RH", "wind", "rain", "area")
 
 cor_matrix <- cor(exploration_set[vars], use = "complete.obs")
-corrplot(cor_matrix, type = "upper", order = "hclust",
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 4, fig.width= 4 }
+c <- corrplot(cor_matrix, type = "upper", order = "hclust",
          tl.col = "black", tl.srt = 45, mar=c(0,0,1,0), title = "Correlation Matrix of Forest Fire Variables")
 ```
 
@@ -215,6 +218,8 @@ grid.arrange( regression_plot, log_regression_plot, ncol = 2, nrow = 1)
 ```
 
 # Model Assuptions
+
+The first assumption (IID) states that the data points are independent of each other and follow the same probability distribution. For our wildfire dataset, based on the correlation plot, each observation of fire spread in the dataset appears to be independent of the others. The conditions that affect fire spread (temperature, moisture, and fuel type) are assumed to be consistent across observations as well. The second assumption (BLP) states that there is a linear relationship between the independent variable(s) and the dependent variable, and that the linear model is the best predictor of the dependent variable. Based on the FFMC (Fine Fuel Moisture Code) and ISI (Initial Spread Index) plot,The relationship appears to be approximately linear.
 
 # Model Results and Interpretation 
 
