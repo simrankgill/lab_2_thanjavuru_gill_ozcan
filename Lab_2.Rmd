@@ -218,9 +218,15 @@ grid.arrange( regression_plot, log_regression_plot, ncol = 2, nrow = 1)
 
 # Model Results and Interpretation 
 
+The residuals vs fitted plot will help us judge two key model assumptions, homoscedasticity and non-linearity. We can see in the resdials plot for the simple linear model that the residuals increase with the fitted values, indicating heteroscedasticity and non-linearity. In contrast, the log-linear model's residuals appear more randomly distributed. The absence of a clear pattern suggests that the log transformation has improved the model fit by stabilizing the variance and improving the linearity.    
+
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.pos='!b', fig.height = 2, fig.width= 6 }
 grid.arrange( residuals_plot, log_residuals_plot, ncol = 2, nrow = 1)
 ```
+
+Our chart below shows that for our log-linear regression our coeffienct for FFMC is statistically significiant. Overall our model has an adjusted R^2 of 0.74. This high adjusted R^2 value shows that FFMC has strong explanatory power in our model and is a good predictor of ISI. 
+
 
 ```{r, echo=FALSE, results='hide' }
 stargazer(log_model, type = "latex", title = "Log-Linear Regression Model Results", digits = 2, single.row = TRUE)
